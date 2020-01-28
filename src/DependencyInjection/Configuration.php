@@ -18,8 +18,8 @@ class Configuration implements ConfigurationInterface
      */
     public function getConfigTreeBuilder()
     {
-        $treeBuilder = new TreeBuilder();
-        $rootNode = $treeBuilder->root('wandi_easy_admin_plus');
+        $treeBuilder = new TreeBuilder('wandi_easy_admin_plus');
+        $rootNode = $this->getRootNode('wandi_easy_admin_plus', $treeBuilder);
 
         $this->addGeneratorSection($rootNode);
         $this->addTranslatorSection($rootNode);
@@ -135,8 +135,7 @@ class Configuration implements ConfigurationInterface
             return false === is_array($v);
         };
 
-        $treeBuilder = new TreeBuilder();
-        $node = $treeBuilder->root('methods');
+        $node = $this->getRootNode('methods');
 
         $node
             ->addDefaultsIfNotSet()
@@ -214,8 +213,7 @@ class Configuration implements ConfigurationInterface
         $defaultJSValue = [
             '/bundles/cksourceckfinder/ckfinder/ckfinder.js',
         ];
-        $treeBuilder = new TreeBuilder();
-        $node = $treeBuilder->root('assets');
+        $node = $this->getRootNode('assets');
 
         $node
             ->addDefaultsIfNotSet()
@@ -261,8 +259,7 @@ class Configuration implements ConfigurationInterface
                 'order' => 'DESC',
             ],
         ];
-        $treeBuilder = new TreeBuilder();
-        $node = $treeBuilder->root('sort');
+        $node = $this->getRootNode('sort');
 
         $node
             ->addDefaultsIfNotSet()
@@ -305,8 +302,7 @@ class Configuration implements ConfigurationInterface
             'new',
             'show',
         ];
-        $treeBuilder = new TreeBuilder();
-        $node = $treeBuilder->root('fields');
+        $node = $this->getRootNode('fields');
 
         $node
             ->addDefaultsIfNotSet()
@@ -338,8 +334,7 @@ class Configuration implements ConfigurationInterface
             'edit' => 'edit',
             'delete' => 'trash',
         ];
-        $treeBuilder = new TreeBuilder();
-        $node = $treeBuilder->root('icons');
+        $node = $this->getRootNode('icons');
 
         $node
             ->addDefaultsIfNotSet()
@@ -358,5 +353,20 @@ class Configuration implements ConfigurationInterface
         ;
 
         return $node;
+    }
+    
+
+    private function getRootNode($name, TreeBuilder $treeBuilder = null)
+    {
+        if (!$treeBuilder) {
+            $treeBuilder = new TreeBuilder($name);
+        }
+
+        // BC layer for symfony/config 4.1 and older
+        if (!method_exists($treeBuilder, 'getRootNode')) {
+            return $treeBuilder->root($name);
+        }
+
+        return $treeBuilder->getRootNode();
     }
 }
